@@ -1,0 +1,24 @@
+#FROM node:8
+FROM debian:stretch
+
+RUN apt update && \
+    apt install -y wget curl gpg && \
+    curl -sL https://deb.nodesource.com/setup_10.x > setup_10.x && \
+    sh ./setup_10.x && \
+    apt install -y nodejs && \
+    apt install -y build-essential libssl-dev
+    
+# install ParaView
+RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.5&type=binary&os=Linux&downloadFile=ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz" -O /tmp/ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz  && \
+    mkdir -p /opt && \
+    cd /opt && \
+    tar zxf /tmp/ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz && \
+    rm -rf /tmp/ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz
+RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.5&type=data&os=Sources&downloadFile=ParaViewTestingData-v5.5.2.tar.gz" -O /tmp/ParaViewTestingData-v5.5.2.tar.gz && \
+    tar zxf /tmp/ParaViewTestingData-v5.5.2.tar.gz && \
+    rm -rf /tmp/ParaViewTestingData-v5.5.2.tar.gz
+
+RUN npm install -g light-viz
+
+# EXPOSE 8080
+CMD [ "bash" ]
