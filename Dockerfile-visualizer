@@ -1,19 +1,30 @@
 FROM trophime/mesa-demos:18.2.4
 
+ARG NODEJS="6"
+
 RUN apt update && \
     apt install -y wget curl gnupg && \
-    curl -sL https://deb.nodesource.com/setup_6.x > setup_6.x && \
-    sh ./setup_6.x && \
+    curl -sL https://deb.nodesource.com/setup_$NODEJS.x > setup_$NODEJS.x && \
+    sh ./setup_$NODEJS.x && \
     apt install -y nodejs && \
     apt install -y build-essential libssl-dev git mpi-default-bin && \
     apt autoclean
     
 # install ParaView
-RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.5&type=binary&os=Linux&downloadFile=ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz" -O /tmp/ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz  && \
+#RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.5&type=binary&os=Linux&downloadFile=ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz" -O /tmp/ParaView.tar.gz  && \
+RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.6&type=binary&os=Linux&downloadFile=ParaView-5.6.0-MPI-Linux-64bit.tar.gz" -O /tmp/ParaView.tar.gz  && \
     mkdir -p /opt && \
     cd /opt && \
-    tar zxf /tmp/ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz && \
-    rm -rf /tmp/ParaView-5.5.2-Qt5-MPI-Linux-64bit.tar.gz
+    tar zxf /tmp/ParaView.tar.gz && \
+    rm -rf /tmp/ParaView.tar.gz
+
+# # install Data
+# # RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.5&type=data&os=Sources&downloadFile=ParaViewData-v5.5.2.tar.gz" -O /tmp/ParaViewData.tar.gz && \
+# RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.6&type=data&os=Sources&downloadFile=ParaViewData-v5.6.0.tar.gz" -O /tmp/ParaViewData.tar.gz && \
+#     mkdir -p /opt && \
+#     cd /opt && \
+#     tar zxf /tmp/ParaViewData.tar.gz && \
+#     rm -rf /tmp/ParaViewData.tar.gz
 
 # # install from source
 # RUN git clone https://github.com/kitware/visualizer.git && \
@@ -24,5 +35,5 @@ RUN wget -nv "https://www.paraview.org/paraview-downloads/download.php?submit=Do
 RUN npm install -g pvw-visualizer
 
 # Visualizer --paraview /Applications/paraview.app --data ~/Desktop
-# EXPOSE 8080
+EXPOSE 8080
 CMD [ "bash" ]
