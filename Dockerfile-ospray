@@ -1,0 +1,46 @@
+FROM ubuntu:bionic
+
+ARG ISPC_VERSION=1.9.2
+
+RUN apt-get -y update && \
+    apt-get install -y wget && \
+    apt-get autoclean
+    
+RUN wget -q https://sourceforge.net/projects/ispcmirror/files/v${ISPC_VERSION}/ispc-v${ISPC_VERSION}-linux.tar.gz/download?use_mirror=netcologne -O /tmp/ispc-${ISPC_VERSION}.tgz && \
+    cd /usr/local && \
+    tar zxf /tmp/ispc-${ISPC_VERSION}.tgz && \
+    rm -rf /tmp/ispc-${ISPC_VERSION}.tgz
+    
+
+ENV ISPC_HOME=/usr/local/ispc-v${ISPC_VERSION}-linux
+ENV PATH=$ISPC_HOME/:$PATH
+
+# Install
+RUN apt-get -y update && \
+    apt-get install -y wget build-essential vim gcc g++ git subversion python m4 bison flex zlib1g-dev ncurses-dev libtinfo-dev libc6-dev-i386 && \
+    apt-get install -y cmake clang && \
+    apt-get install -y pkg-config libtbb-dev imagemagick freeglut3-dev libglfw3-dev libxmu-dev libxi-dev && \
+    apt-get install -y libpng-dev libjpeg-dev libopenimageio-dev && \
+    apt-get autoclean
+
+RUN cd /tmp && \
+    git clone https://github.com/embree/embree.git && \
+    cd embree && \
+    mkdir -p build && \
+    cd build && \
+    cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. && \
+    make -j2 && \
+    make install && \
+    cd /tmp/ && \
+    rm -rf embree
+    
+RUN cd /tmp && \
+    git clone https://github.com/ospray/ospray.git && \
+    cd ospray && \
+    mkdir -p build && \
+    cd build && \
+    cmake -DCMAKE_VERBOSE_MAKEFILE=ON  .. && \
+    make -j2 && \
+    make install && \
+    cd /tmp && \
+    rm -rf ospray
