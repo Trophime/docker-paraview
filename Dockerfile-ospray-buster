@@ -1,6 +1,10 @@
-FROM debian:buster
+#FROM debian:buster
+#FROM trophime/mesa:19.0.1-buster
+FROM trophime/mesa:18.3.5-buster
 
 ARG ISPC_VERSION=1.9.2
+ARG QT5_VERSION=5.11.3
+ARG JOBS=2
 
 RUN apt-get -y update && \
     apt-get install -y wget && \
@@ -17,7 +21,7 @@ ENV PATH=$ISPC_HOME/:$PATH
 
 # Install
 RUN apt-get -y update && \
-    apt-get install -y wget build-essential vim gcc g++ git subversion python m4 bison flex zlib1g-dev ncurses-dev libtinfo-dev libc6-dev-i386 && \
+    apt-get install -y wget build-essential vim gcc g++ git subversion python3 m4 bison flex zlib1g-dev ncurses-dev libtinfo-dev libc6-dev-i386 && \
     apt-get install -y cmake clang && \
     apt-get install -y pkg-config libtbb-dev imagemagick freeglut3-dev libglfw3-dev libxmu-dev libxi-dev && \
     apt-get install -y libpng-dev libjpeg-dev libopenimageio-dev && \
@@ -28,8 +32,8 @@ RUN cd /tmp && \
     cd embree && \
     mkdir -p build && \
     cd build && \
-    cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. && \
-    make -j2 && \
+    cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. && \
+    make -j${JOBS} && \
     make install && \
     cd /tmp/ && \
     rm -rf embree
@@ -39,8 +43,9 @@ RUN cd /tmp && \
     cd ospray && \
     mkdir -p build && \
     cd build && \
-    cmake -DCMAKE_VERBOSE_MAKEFILE=ON  .. && \
-    make -j2 && \
+    cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release .. && \
+    make -j${JOBS} && \
     make install && \
     cd /tmp && \
     rm -rf ospray
+

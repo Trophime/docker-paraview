@@ -1,85 +1,24 @@
 #FROM debian:buster
 #FROM trophime/mesa:19.0.1-buster
-FROM trophime/mesa:18.3.5-buster
+FROM trophime/qt5:5.11.3-buster
 
-ARG ISPC_VERSION=1.9.2
-ARG QT5_VERSION=5.11.3
 ARG JOBS=2
 
 RUN apt-get -y update && \
     apt-get install -y wget && \
     apt-get autoclean
-    
-RUN wget -q https://sourceforge.net/projects/ispcmirror/files/v${ISPC_VERSION}/ispc-v${ISPC_VERSION}-linux.tar.gz/download?use_mirror=netcologne -O /tmp/ispc-${ISPC_VERSION}.tgz && \
-    cd /usr/local && \
-    tar zxf /tmp/ispc-${ISPC_VERSION}.tgz && \
-    rm -rf /tmp/ispc-${ISPC_VERSION}.tgz
-    
 
 ENV ISPC_HOME=/usr/local/ispc-v${ISPC_VERSION}-linux
 ENV PATH=$ISPC_HOME/:$PATH
 
 # Install
+# Add if depot is Lncmi: libopenturns-dev
 RUN apt-get -y update && \
     apt-get install -y wget build-essential vim gcc g++ git subversion python3 m4 bison flex zlib1g-dev ncurses-dev libtinfo-dev libc6-dev-i386 && \
     apt-get install -y cmake clang && \
     apt-get install -y pkg-config libtbb-dev imagemagick freeglut3-dev libglfw3-dev libxmu-dev libxi-dev && \
     apt-get install -y libpng-dev libjpeg-dev libopenimageio-dev && \
-    apt-get autoclean
-
-RUN cd /tmp && \
-    git clone https://github.com/embree/embree.git && \
-    cd embree && \
-    mkdir -p build && \
-    cd build && \
-    cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang .. && \
-    make -j${JOBS} && \
-    make install && \
-    cd /tmp/ && \
-    rm -rf embree
-    
-RUN cd /tmp && \
-    git clone https://github.com/ospray/ospray.git && \
-    cd ospray && \
-    mkdir -p build && \
-    cd build && \
-    cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=Release .. && \
-    make -j${JOBS} && \
-    make install && \
-    cd /tmp && \
-    rm -rf ospray
-
-# ?? -skip qtwebengine
-RUN apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev && \
-    apt-get -y install flex bison gperf libicu-dev libxslt-dev ruby && \
-    apt-get -y install libxcb-xinerama0-dev && \
-    apt-get -y install libasound2-dev libgstreamer1.0-dev libgstreamer-plugins-bad1.0-dev && \
-    cd /tmp && \
-    git clone https://code.qt.io/qt/qt5.git && \
-    cd qt5 && \
-    git checkout v${QT5_VERSION} && \
-    git submodule update --init --recursive && \
-    export QT5PREFIX=/usr/local && \
-    mkdir -p ${QT5PREFIX} && \
-    ./configure \
-            -archdatadir    /usr/local/lib/qt5                \
-            -bindir         /usr/local/bin                    \
-            -plugindir      /usr/local/lib/qt5/plugins        \
-            -importdir      /usr/local/lib/qt5/imports        \
-            -headerdir      /usr/local/include/qt5            \
-            -datadir        /usr/local/share/qt5              \
-            -docdir         /usr/local/share/doc/qt5          \
-            -translationdir /usr/local/share/qt5/translations \
-            -examplesdir    /usr/local/share/doc/qt5/examples \
-            -confirm-license \
-            -opensource -nomake examples -nomake tests && \
-    make -j${JOBS} && \
-    make install && \
-    cd /tmp && \
-    rm -rf qt5 
-    
-# Add if depot is Lncmi: libopenturns-dev
-RUN apt-get install -y cmake \
+    apt-get install -y cmake \
                libsqlite3-dev \
                libboost-all-dev \
                libavformat-dev \
@@ -142,6 +81,7 @@ RUN apt-get install -y cmake \
                python3-numpy
                
 RUN cd /tmp && \
+    export QT5PREFIX=/usr/local && \
     git clone https://gitlab.kitware.com/paraview/paraview.git && \
     cd paraview && \
     git submodule update --init --recursive && \

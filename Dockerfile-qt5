@@ -1,0 +1,48 @@
+#FROM debian:buster
+#FROM trophime/mesa:19.0.1-buster
+FROM trophime/ospray:buster
+
+ARG QT5_VERSION=5.11.3
+ARG JOBS=2
+
+RUN apt-get -y update && \
+    apt-get install -y wget && \
+    apt-get autoclean
+    
+# Install
+# ?? -skip qtwebengine
+RUN apt-get -y update && \
+    apt-get install -y wget build-essential vim gcc g++ git subversion python3 m4 bison flex zlib1g-dev ncurses-dev libtinfo-dev libc6-dev-i386 && \
+    apt-get install -y cmake clang && \
+    apt-get install -y pkg-config libtbb-dev imagemagick freeglut3-dev libglfw3-dev libxmu-dev libxi-dev && \
+    apt-get install -y libpng-dev libjpeg-dev libopenimageio-dev && \
+    apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev && \
+    apt-get -y install flex bison gperf libicu-dev libxslt-dev ruby && \
+    apt-get -y install libxcb-xinerama0-dev && \
+    apt-get -y install libasound2-dev libgstreamer1.0-dev libgstreamer-plugins-bad1.0-dev && \
+    apt-get autoclean && \
+    cd /tmp && \
+    git clone https://code.qt.io/qt/qt5.git && \
+    cd qt5 && \
+    git checkout v${QT5_VERSION} && \
+    git submodule update --init --recursive && \
+    export QT5PREFIX=/usr/local && \
+    mkdir -p ${QT5PREFIX} && \
+    ./configure \
+            -archdatadir    /usr/local/lib/qt5                \
+            -bindir         /usr/local/bin                    \
+            -plugindir      /usr/local/lib/qt5/plugins        \
+            -importdir      /usr/local/lib/qt5/imports        \
+            -headerdir      /usr/local/include/qt5            \
+            -datadir        /usr/local/share/qt5              \
+            -docdir         /usr/local/share/doc/qt5          \
+            -translationdir /usr/local/share/qt5/translations \
+            -examplesdir    /usr/local/share/doc/qt5/examples \
+            -confirm-license \
+            -opensource -nomake examples -nomake tests && \
+    make -j${JOBS} && \
+    make install && \
+    find $QT5PREFIX/ -name \*.prl -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \; && \
+    cd /tmp && \
+    rm -rf qt5 
+    
