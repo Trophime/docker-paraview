@@ -29,15 +29,18 @@ RUN apt-get -y update && \
     export QT5PREFIX=/usr/local && \
     mkdir -p ${QT5PREFIX} && \
     ./configure \
-            -archdatadir    /usr/local/lib/qt5                \
-            -bindir         /usr/local/bin                    \
-            -plugindir      /usr/local/lib/qt5/plugins        \
-            -importdir      /usr/local/lib/qt5/imports        \
-            -headerdir      /usr/local/include/qt5            \
-            -datadir        /usr/local/share/qt5              \
-            -docdir         /usr/local/share/doc/qt5          \
-            -translationdir /usr/local/share/qt5/translations \
-            -examplesdir    /usr/local/share/doc/qt5/examples \
+	            -bindir "/usr/local/lib/qt5/bin" \
+	            -libdir "/usr/local/lib" \
+	            -docdir "/usr/local/share/qt5/doc" \
+	            -headerdir "/usr/local/include/qt5" \
+	            -datadir "/usr/local/share/qt5" \
+	            -archdatadir "/usr/local/lib/qt5" \
+	            -plugindir "/usr/local/lib/qt5/plugins" \
+	            -importdir "/usr/local/lib/qt5/imports" \
+	            -translationdir "/usr/local/share/qt5/translations" \
+	            -hostdatadir "/usr/local/lib/qt5" \
+	            -sysconfdir "/etc/xdg" \
+	            -examplesdir "/usr/local/lib/qt5/examples" \
             -confirm-license \
             -opensource -nomake examples -nomake tests && \
     make -j${JOBS} && \
